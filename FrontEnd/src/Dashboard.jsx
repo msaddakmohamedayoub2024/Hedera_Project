@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./Api";
+import HackerDemoButton from "./HackerDemoButton";
 import Layout, { Toggles } from "./Layout";
 import StudentBar from "./Studentbar";
 import ProfilePage from "./Profilepage";
@@ -1473,6 +1474,8 @@ export default function Dashboard({ lang, setLang, dark, toggleTheme, session, o
             )}
             {commitmentResults?.length === 0 && <p className="ins-text">{t.noCommitments}</p>}
           </section>
+
+          <HackerDemoButton onVerified={verifyCommitments} />
 
           {/* 3. Verify */}
           <section className="ins-section">

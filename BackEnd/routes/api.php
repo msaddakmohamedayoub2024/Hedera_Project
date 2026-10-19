@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DemoHackerController;
 use App\Http\Controllers\InsafController;
 use App\Http\Controllers\IncidentReportController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/apply/confirm', [InsafController::class, 'confirmApply']);
     Route::post('/apply/resend', [InsafController::class, 'resendApplyCode']);
     Route::post('/verify', [InsafController::class, 'verify']);
+    Route::post('/demo/simulate-hacker', [DemoHackerController::class, 'simulate']);
+    Route::post('/demo/reset', [DemoHackerController::class, 'reset']);
     Route::post('/incident-reports', [IncidentReportController::class, 'store']);
     Route::post('/profile/problem-reports', [IncidentReportController::class, 'storeStudentProblem']);
 

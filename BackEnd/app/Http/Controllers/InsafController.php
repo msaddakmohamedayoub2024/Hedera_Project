@@ -8,8 +8,10 @@ use App\Models\PendingPreferenceSubmission;
 use App\Models\PreferenceDraft;
 use App\Models\Program;
 use App\Models\Student;
+use App\Models\TamperSimulation;
 use App\Models\University;
 use App\Mail\PreferenceSubmissionCodeMail;
+use App\Services\DemoTamperFingerprint;
 use App\Services\Insaf;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -54,7 +56,12 @@ class InsafController extends Controller
     public function verifyCommitments()
     {
         $latestIds = $this->latestCommitmentIds();
-        $commitments = $this->orderedCommitments($latestIds)->map(function (Commitment $commitment) use ($latestIds): array {
+        $simulation = auth()->check() && $this->demoModeEnabled()
+            ? TamperSimulation::where('student_id', auth()->id())
+                ->where('is_simulation', true)
+                ->first()
+            : null;
+        $commitments = $this->orderedCommitments($latestIds)->map(function (Commitment $commitment) use ($latestIds, $simulation): array {
             $network = $commitment->hedera_network ?? config('services.hedera.network');
             $topicId = $commitment->hedera_topic_id ?? config('services.hedera.topic_id');
             $urls = Insaf::hashscanUrls($network, $topicId, $commitment->hcs_tx_id);
@@ -100,7 +107,11 @@ class InsafController extends Controller
             }
 
             try {
-                $recomputedHash = Insaf::recomputeCommitmentHash($commitment->kind);
+                $recomputedHash = $simulation !== null &&
+                    $commitment->kind === 'merkle_root' &&
+                    ($latestIds[$commitment->kind] ?? null) === $commitment->id
+                    ? DemoTamperFingerprint::merkleRootWith($simulation)
+                    : Insaf::recomputeCommitmentHash($commitment->kind);
                 $record = Insaf::readAnchorRecord((int) $commitment->hcs_sequence, $topicId);
             } catch (ConnectionException|RequestException|\UnexpectedValueException|\RuntimeException $exception) {
                 report($exception);

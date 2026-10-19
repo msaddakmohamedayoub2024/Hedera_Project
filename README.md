@@ -148,7 +148,7 @@ For live HCS submissions, configure the backend topic and Mirror Node in `BackEn
 HEDERA_NETWORK=testnet
 HEDERA_TOPIC_ID=<existing-testnet-topic-id>
 HEDERA_MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com
-DEMO_MODE=false
+DEMO_MODE=true
 ```
 
 Set up the Hedera sender's local environment:

@@ -1,3 +1,39 @@
+## The problem
+High-school graduates rank their university choices in a national orientation
+process. If those choices are silently altered (by an insider, a compromised
+account or a database attack), the student has no proof of what they actually
+submitted.
+
+## Our solution
+INSaf anchors a SHA-256 fingerprint of each confirmed application on the
+Hedera Consensus Service. The student's receipt can be checked at any time
+against Hedera. If the current data no longer matches the anchored
+fingerprint, the system flags the tampering, emails the owner and supports
+an incident report to the authorities.
+
+## Why Hedera
+- Immutable, consensus-timestamped record that neither the database
+  administrator nor an attacker can rewrite.
+- Only a fingerprint is published, never personal data.
+- Very low fee per message and fast finality, so anchoring every
+  application is realistic at national scale.
+- Anyone can verify through the public Mirror Node.
+
+Live topic: https://hashscan.io/testnet/topic/<YOUR_TOPIC_ID>
+
+## Demo
+- Video: <link>
+- Test account: CIN 12345677 / password insaf2026
+- Set `DEMO_MODE=true` in `BackEnd/.env`, then use the
+  "Se comporter comme un hacker" button to simulate a tampering attempt.
+  The simulation never writes to the real HCS topic; the alert email is
+  sent to the account owner.
+
+## Impact and next steps
+Ministries and universities could adopt it to guarantee tamper-evident
+applications. Next: salted/HMAC fingerprints per student, DID/verifiable
+credentials, multi-institution anchoring.
+
 # INSaf
 
 INSaf is a university-preference and application-integrity platform. Students can manage university choices, submit a verified application, and check its integrity against a record anchored to the Hedera Consensus Service (HCS). The application also includes administrator tools for reviewing integrity incidents.

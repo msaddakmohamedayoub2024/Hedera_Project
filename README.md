@@ -1,4 +1,8 @@
-## The problem
+# INSaf
+
+INSaf is a university-preference and application-integrity platform. Students can manage university choices, submit a verified application, and check its integrity against a record anchored to the Hedera Consensus Service (HCS). The application also includes administrator tools for reviewing integrity incidents.
+
+The project is a tamper-evident application demonstration. It is not a complete decentralized identity (DID) or verifiable-credentials system.## The problem
 High-school graduates rank their university choices in a national orientation
 process. If those choices are silently altered (by an insider, a compromised
 account or a database attack), the student has no proof of what they actually
@@ -34,11 +38,7 @@ Ministries and universities could adopt it to guarantee tamper-evident
 applications. Next: salted/HMAC fingerprints per student, DID/verifiable
 credentials, multi-institution anchoring.
 
-# INSaf
 
-INSaf is a university-preference and application-integrity platform. Students can manage university choices, submit a verified application, and check its integrity against a record anchored to the Hedera Consensus Service (HCS). The application also includes administrator tools for reviewing integrity incidents.
-
-The project is a tamper-evident application demonstration. It is not a complete decentralized identity (DID) or verifiable-credentials system.
 
 ## Features
 

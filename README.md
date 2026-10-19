@@ -22,7 +22,7 @@ an incident report to the authorities.
 Live topic: https://hashscan.io/testnet/topic/<YOUR_TOPIC_ID>
 
 ## Demo
-- Video: <link>
+- Video: https://drive.google.com/drive/folders/1UyGyTb-5VRMe6gQVrgn0iytoy3dxwPb3?usp=drive_link
 - Test account: CIN 12345677 / password insaf2026
 - Set `DEMO_MODE=true` in `BackEnd/.env`, then use the
   "Se comporter comme un hacker" button to simulate a tampering attempt.

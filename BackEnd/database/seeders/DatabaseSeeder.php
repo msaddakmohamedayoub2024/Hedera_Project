@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
         $firstNamesAr = ['يوسف', 'مريم', 'أمين', 'سلمى', 'فارس', 'إيناس', 'أنيس', 'نور', 'مالك', 'رانيا', 'سامي', 'آية', 'خليل', 'لينا', 'مهدي', 'سناء', 'طارق', 'أمينة', 'بلال', 'هالة'];
         $familyNames = ['Trabelsi', 'Gharbi', 'Ben Youssef', 'Mansour', 'Jaziri', 'Khelifi', 'Saidi', 'Bouzid', 'Ayari', 'Haddad', 'Ben Amor', 'Mabrouk', 'Chaabane', 'Mejri', 'Kammoun', 'Dridi', 'Hamdi', 'Cherif', 'Brahmi', 'Nasri'];
         $familyNamesAr = ['الطرابلسي', 'الغربي', 'بن يوسف', 'منصور', 'الجزيري', 'الخليفي', 'السعيدي', 'بوزيد', 'العياري', 'الحداد', 'بن عمر', 'مبروك', 'شعبان', 'المجري', 'الكمون', 'الدريدي', 'الحمدي', 'الشريف', 'البراهمي', 'الناصري'];
-        
+
         $institutions = [
             ['Lycée Pilote de Tunis', 'المعهد النموذجي بتونس'],
             ['Lycée Pilote de Sfax', 'المعهد النموذجي بصفاقس'],
@@ -92,15 +92,15 @@ class DatabaseSeeder extends Seeder
             $index = $i - 2;
             $firstNameIndex = $index % count($firstNames);
             $familyNameIndex = intdiv($index, count($firstNames)) % count($familyNames);
-            
+
             $selectedInstitution = $institutions[$index % count($institutions)];
-            
+
             $s = Student::create([
                 'code' => $code,
                 'score' => mt_rand(800, 1900) / 100,
                 'cin' => (string) (10000000 + $i),
                 'email' => strtolower($code) . '@fictional-insaf.test',
-                'password' => $fictionalPwd, 
+                'password' => $fictionalPwd,
                 'name_fr' => $firstNames[$firstNameIndex] . ' ' . $familyNames[$familyNameIndex],
                 'name_ar' => $firstNamesAr[$firstNameIndex] . ' ' . $familyNamesAr[$familyNameIndex],
                 'institution_fr' => $selectedInstitution[0],
@@ -123,7 +123,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // The ONLY authentic test account for the project administrator/owner
-        $ownerEmail = env('TEST_USER_EMAIL', 'owner.machine@insaf.test');
+        $ownerEmail = config('app.test_user_email') ?: 'owner.machine@insaf.test';
 
         $owner = Student::create([
             'id'             => 201,
@@ -131,7 +131,7 @@ class DatabaseSeeder extends Seeder
             'score'          => 17.52,
             'cin'            => '12345677', // Exactly 8 digits to clear AuthController validation rules
             'email'          => $ownerEmail,
-            'password'       => Hash::make('insaf2026'), 
+            'password'       => Hash::make('insaf2026'),
             'name_fr'        => 'Mounir ben malek',
             'name_ar'        => 'منير بن مالك',
             'institution_fr' => 'Lycée Pilote de Gabès',

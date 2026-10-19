@@ -19,9 +19,7 @@ export default function HackerDemoButton({ onVerified }) {
       await onVerified();
     } catch (error) {
       setIsError(true);
-      setMessage(error.response?.status === 403
-        ? "Mode démo désactivé côté serveur. Configurez DEMO_MODE=true dans le .env du backend."
-        : error.response?.data?.message || error.message);
+      setMessage(error.response?.data?.message || error.message);
     } finally {
       setBusy(false);
     }
@@ -38,9 +36,7 @@ export default function HackerDemoButton({ onVerified }) {
       await onVerified();
     } catch (error) {
       setIsError(true);
-      setMessage(error.response?.status === 403
-        ? "Mode démo désactivé côté serveur. Configurez DEMO_MODE=true dans le .env du backend."
-        : error.response?.data?.message || error.message);
+      setMessage(error.response?.data?.message || error.message);
     } finally {
       setBusy(false);
     }

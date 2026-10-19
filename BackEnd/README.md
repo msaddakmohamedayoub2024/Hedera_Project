@@ -57,3 +57,18 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Configuration de la démo
+
+1. Copiez `.env.example` vers `.env`.
+2. Renseignez `MAIL_USERNAME`, `MAIL_PASSWORD` (mot de passe d’application Gmail), `MAIL_FROM_ADDRESS` et `TEST_USER_EMAIL` avec vos propres valeurs.
+3. Lancez les commandes depuis `BackEnd` :
+
+   ```sh
+   php artisan config:clear
+   php artisan migrate --seed
+   php artisan demo:sync-test-user
+   php artisan demo:test-mail
+   ```
+
+L’email d’alerte est envoyé à l’adresse enregistrée pour le compte authentifié. L’ancrage de démonstration et l’alerte ne sont déclenchés que par le bouton de démonstration.

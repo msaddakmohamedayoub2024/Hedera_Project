@@ -103,6 +103,65 @@ class DemoHackerSimulationTest extends TestCase
         Mail::assertSent(TamperAlertMail::class, 1);
     }
 
+    public function test_database_hacker_changes_preferences_detects_the_difference_and_reset_restores_them(): void
+    {
+        $this->seed();
+        config(['services.hedera.demo_mode' => true]);
+        [$student, $application] = $this->createAnchoredApplication();
+        $originalChoices = array_map('intval', $application->receipt_choices);
+        $originalHash = $application->receipt_hash;
+        Http::fake([
+            '*' => Http::response([
+                'message' => base64_encode('c:'.$originalHash),
+                'topic_id' => '0.0.123',
+                'sequence_number' => 42,
+                'consensus_timestamp' => '1700000000.000000001',
+                'transaction_id' => $application->receipt_transaction_id,
+            ]),
+        ]);
+        Sanctum::actingAs($student);
+
+        $this->postJson('/api/demo/simulate-database-hacker')
+            ->assertOk()
+            ->assertJsonPath('status', 'database_preferences_changed')
+            ->assertJsonPath('beforeChoices', $originalChoices);
+
+        $application->refresh();
+        $alteredChoices = array_map('intval', $application->choices);
+        $this->assertNotSame($originalChoices, $alteredChoices);
+        $this->assertSame($originalChoices, array_map('intval', $application->receipt_choices));
+        $this->assertSame($originalHash, $application->receipt_hash);
+        $this->assertSame(
+            Insaf::commit($student->code, $alteredChoices, $application->salt),
+            $application->commitment
+        );
+
+        $this->postJson('/api/verify', [
+            'code' => $student->code,
+            'score' => $student->score,
+            'choices' => $originalChoices,
+            'salt' => $application->receipt_salt,
+            'sequence' => $application->receipt_sequence,
+            'tx' => $application->receipt_transaction_id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('valid', false)
+            ->assertJsonPath('checks.0.ok', true)
+            ->assertJsonPath('checks.1.ok', false)
+            ->assertJsonPath('incident.originalChoices', $originalChoices)
+            ->assertJsonPath('incident.currentChoices', $alteredChoices);
+
+        $this->postJson('/api/demo/reset')
+            ->assertOk()
+            ->assertJsonPath('status', 'reset');
+        $application->refresh();
+        $this->assertSame($originalChoices, array_map('intval', $application->choices));
+        $this->assertSame(
+            Insaf::commit($student->code, $originalChoices, $application->salt),
+            $application->commitment
+        );
+    }
+
     public function test_simulation_creates_and_indexes_a_receipt_only_after_the_button_is_clicked(): void
     {
         $this->seed();

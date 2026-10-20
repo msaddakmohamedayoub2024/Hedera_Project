@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "./Api";
 
-export default function HackerDemoButton({ onVerified }) {
+export default function HackerDemoButton({ onVerified, onDataChanged, lang = "fr" }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [reportReference, setReportReference] = useState("");
@@ -33,7 +33,25 @@ export default function HackerDemoButton({ onVerified }) {
     try {
       const { data } = await api.post("/demo/reset");
       setMessage(data.message);
+      onDataChanged?.();
       await onVerified();
+    } catch (error) {
+      setIsError(true);
+      setMessage(error.response?.data?.message || error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const simulateDatabaseChange = async () => {
+    setBusy(true);
+    setIsError(false);
+    setMessage("");
+    setReportReference("");
+    try {
+      const { data } = await api.post("/demo/simulate-database-hacker");
+      setMessage(data.message);
+      onDataChanged?.();
     } catch (error) {
       setIsError(true);
       setMessage(error.response?.data?.message || error.message);
@@ -52,7 +70,22 @@ export default function HackerDemoButton({ onVerified }) {
           onClick={simulate}
           style={{ borderColor: "#dc3232", color: "#ffd0d0" }}
         >
-          {busy ? "Simulation en cours…" : "Se comporter comme un hacker"}
+          {busy
+            ? (lang === "en" ? "Simulation in progress…" : "Simulation en cours…")
+            : (lang === "en" ? "Act like a hacker (interface)" : "Se comporter comme un hacker interface")}
+        </button>
+        <button
+          className="ins-btn"
+          type="button"
+          disabled={busy}
+          onClick={simulateDatabaseChange}
+          style={{ borderColor: "#dc3232", color: "#ffd0d0" }}
+        >
+          {busy
+            ? (lang === "en" ? "Simulation in progress…" : "Simulation en cours…")
+            : (lang === "en"
+              ? "Act like a hacker (database)"
+              : "Se comporter comme un hacker base de données")}
         </button>
         <button
           type="button"
@@ -67,7 +100,7 @@ export default function HackerDemoButton({ onVerified }) {
             textDecoration: "underline",
           }}
         >
-          Réinitialiser la démo
+          {lang === "en" ? "Reset demo" : "Réinitialiser la démo"}
         </button>
       </div>
       {message && (

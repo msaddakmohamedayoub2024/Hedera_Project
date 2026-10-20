@@ -420,7 +420,7 @@ const translations = {
     verify: "Vérifier mes vœux",
     verifyPending: "Vérification en attente de la confirmation du Mirror Node.",
     verifyError: "La vérification n’a pas pu être terminée. Aucun résultat positif n’est confirmé.",
-    integrityMismatch: "Écart d’intégrité : les préférences actuelles ne correspondent pas à la soumission originale enregistrée sur Hedera. Cela ne détermine pas qui a effectué la modification.",
+    integrityMismatch: "Écart d’intégrité : les préférences originales du reçu ne sont pas égales aux préférences actuellement stockées dans la base de données. Cela ne détermine pas qui a effectué la modification.",
     generateIncidentPdf: "Generate Incident Report PDF",
     submitIncidentReport: "Submit Report to Administrator",
     incidentSubmitted: "Incident report submitted for administrator review.",
@@ -562,7 +562,7 @@ const translations = {
     verify: "Verify my preferences",
     verifyPending: "Verification is waiting for the Mirror Node to confirm the record.",
     verifyError: "Verification could not be completed. No positive result is confirmed.",
-    integrityMismatch: "Integrity discrepancy: current preferences differ from the original submission recorded on Hedera. This does not identify who made the change.",
+    integrityMismatch: "Integrity discrepancy: the original receipt preferences do not match the preferences currently stored in the database. This does not identify who made the change.",
     generateIncidentPdf: "Generate Incident Report PDF",
     submitIncidentReport: "Submit Report to Administrator",
     incidentSubmitted: "Incident report submitted for administrator review.",
@@ -1475,7 +1475,15 @@ export default function Dashboard({ lang, setLang, dark, toggleTheme, session, o
             {commitmentResults?.length === 0 && <p className="ins-text">{t.noCommitments}</p>}
           </section>
 
-          <HackerDemoButton onVerified={verifyCommitments} />
+          <HackerDemoButton
+            lang={lang}
+            onVerified={verifyCommitments}
+            onDataChanged={() => {
+              setResult(null);
+              setIncidentPdf(null);
+              setIncidentSubmission(null);
+            }}
+          />
 
           {/* 3. Verify */}
           <section className="ins-section">

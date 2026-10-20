@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/apply/resend', [InsafController::class, 'resendApplyCode']);
     Route::post('/verify', [InsafController::class, 'verify']);
     Route::post('/demo/simulate-hacker', [DemoHackerController::class, 'simulate']);
+    Route::post('/demo/simulate-database-hacker', [DemoHackerController::class, 'simulateDatabaseChange']);
     Route::post('/demo/reset', [DemoHackerController::class, 'reset']);
     Route::post('/incident-reports', [IncidentReportController::class, 'store']);
     Route::post('/profile/problem-reports', [IncidentReportController::class, 'storeStudentProblem']);

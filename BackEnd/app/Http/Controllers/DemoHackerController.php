@@ -202,10 +202,84 @@ class DemoHackerController extends Controller
         }
 
         TamperSimulation::where('student_id', $request->user()->id)->delete();
+        $application = Application::where('student_id', $request->user()->id)->first();
+        if (
+            $application !== null &&
+            is_array($application->receipt_choices) &&
+            is_string($application->salt) &&
+            $application->salt !== ''
+        ) {
+            $originalChoices = array_map('intval', $application->receipt_choices);
+            $application->update([
+                'choices' => $originalChoices,
+                'commitment' => Insaf::commit(
+                    $request->user()->code,
+                    $originalChoices,
+                    $application->salt
+                ),
+            ]);
+        }
 
         return response()->json([
             'status' => 'reset',
-            'message' => 'La simulation a été réinitialisée. Les données réelles sont inchangées.',
+            'message' => 'La simulation a été réinitialisée. Les préférences originales ont été restaurées.',
+        ]);
+    }
+
+    public function simulateDatabaseChange(Request $request)
+    {
+        if (! $this->demoModeEnabled()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'demo_disabled',
+                'message' => 'Mode démo désactivé côté serveur.',
+            ], 403);
+        }
+
+        $student = $request->user();
+        $application = DB::transaction(function () use ($student): Application {
+            $application = Application::where('student_id', $student->id)
+                ->lockForUpdate()
+                ->first();
+
+            abort_if(
+                $application === null ||
+                $application->receipt_sequence === null ||
+                ! is_array($application->receipt_choices) ||
+                count($application->receipt_choices) < 2 ||
+                ! is_string($application->receipt_salt) ||
+                $application->receipt_salt === '' ||
+                ! is_string($application->receipt_hash) ||
+                $application->receipt_hash === '' ||
+                ! is_string($application->salt) ||
+                $application->salt === '',
+                409,
+                'Un reçu Hedera valide est nécessaire avant de modifier les préférences de démonstration.'
+            );
+
+            $originalChoices = array_map('intval', $application->receipt_choices);
+            abort_if(
+                count(array_unique($originalChoices)) !== count($originalChoices),
+                409,
+                'Les préférences originales du reçu ne sont pas valides.'
+            );
+
+            $alteredChoices = $originalChoices;
+            [$alteredChoices[0], $alteredChoices[1]] = [$alteredChoices[1], $alteredChoices[0]];
+            $application->update([
+                'choices' => $alteredChoices,
+                'commitment' => Insaf::commit($student->code, $alteredChoices, $application->salt),
+            ]);
+
+            return $application;
+        });
+
+        return response()->json([
+            'success' => true,
+            'status' => 'database_preferences_changed',
+            'message' => 'Les préférences stockées en base de données ont été modifiées. Le reçu Hedera original est conservé ; vérifiez vos vœux pour détecter l’écart.',
+            'beforeChoices' => array_map('intval', $application->receipt_choices),
+            'afterChoices' => array_map('intval', $application->choices),
         ]);
     }
 
